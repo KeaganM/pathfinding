@@ -82,12 +82,12 @@ class Node(Maze):
         Maze.__init__(self,grid=grid)
 
         self.parent = parent
-        self.current = current
+        self.pos = current
         self.cost = cost
         self.heuristic = heuristic
         self.total_cost = self._get_total_cost()
         self.children = self._get_children_grid(neighbors)
-        self.info_dict = {"current":self.current,"parent":self.parent,"children": self.children}
+        self.info_dict = {"current":self.pos, "parent":self.parent, "children": self.children}
 
     def _get_total_cost(self) -> int:
         """ A function to get the total cost to get to a cell.
@@ -141,7 +141,7 @@ class Node(Maze):
 
             children = list()
             for key,value in neighbors_dict.items():
-                child_node = (self.current[0] + value["calc"][0],self.current[1] + value["calc"][1])
+                child_node = (self.pos[0] + value["calc"][0], self.pos[1] + value["calc"][1])
                 if child_node == self.parent or child_node[0] < 0 or child_node[1] < 0 or child_node[0] >= self.grid_shape[0] or child_node[1] >= self.grid_shape[1]:
                     pass
                 else:
@@ -217,7 +217,7 @@ class Node(Maze):
             return  _iterate_over_directions(eight_wind)
 
     def __repr__(self):
-        return f"Node{self.current}"
+        return f"Node{self.pos}"
 
 class Stack:
     """ A class to act as a stack data structure.
@@ -227,7 +227,7 @@ class Stack:
 
     Attributes
     ----------
-    nodes : list
+    stacked_nodes : list
         a list of Node objects
 
     Methods
@@ -239,7 +239,7 @@ class Stack:
 
     """
     def __init__(self) -> None:
-        self.nodes = list()
+        self.stacked_nodes = list()
 
     def push(self,node: Node) -> None:
         """ A function to insert a new object.
@@ -252,7 +252,7 @@ class Stack:
             a Node object
 
         """
-        self.nodes.insert(0,node)
+        self.stacked_nodes.insert(0, node)
 
     def pop(self) -> Node:
         """ A function to remove and return the first object.
@@ -264,10 +264,13 @@ class Stack:
             a Node object
 
         """
-        return self.nodes.pop(0)
+        return self.stacked_nodes.pop(0)
 
     def __repr__(self):
-        return f"current stack is: {self.nodes}"
+        return f"current stack is: {self.stacked_nodes}"
+
+    def __len__(self):
+        return len(self.stacked_nodes)
 
 class Queue:
     """A class to act as a queue data structure
@@ -308,7 +311,7 @@ class Queue:
 
         """
         self.queued_nodes.append(node)
-        self.queue_list.append(node.current)
+        self.queue_list.append(node.pos)
 
     def pop(self) -> Node:
         """ A function to remove and return a popped object.
@@ -327,7 +330,7 @@ class Queue:
     def __repr__(self):
         return f"current queue is: {self.queued_nodes}"
 
-    # for educational and testing purposes
+    # for educational and testing purposes vvvv
     def __iter__(self):
         return self
 
@@ -336,6 +339,10 @@ class Queue:
         if self._iter_queued_nodes:
             return self._iter_queued_nodes.pop(0)
         raise StopIteration()
+    # ^^^^ for educational and testing purposes
+
+    def __len__(self):
+        return len(self.queued_nodes)
 
 class PriorityQueue(Queue):
     """ A class to act as a priority queue data structure.
@@ -368,7 +375,7 @@ class PriorityQueue(Queue):
 
         """
         self.queued_nodes.append(node)
-        self.queue_list.append(node.current)
+        self.queue_list.append(node.pos)
         self._prioritize()
 
     def _prioritize(self) -> None:
@@ -431,8 +438,8 @@ class VisitedNodes:
 
         """
         self.nodes.append(node)
-        self.visited_nodes.append(node.current)
-        self.node_info[node.current] = node.info_dict
+        self.visited_nodes.append(node.pos)
+        self.node_info[node.pos] = node.info_dict
 
     def create_path(self,current_node_position,start_position) -> Tuple[list,list]:
         """ A function to create a path through the stored nodes

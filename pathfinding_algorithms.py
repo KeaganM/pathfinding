@@ -51,14 +51,16 @@ def a_star(grid:np.array,start:tuple,end:tuple) -> Tuple[list,list]:
     while priority_queue:
         node = priority_queue.pop()
         visited._store_node(node)
-        if node.current == end:
-            visited_list,path_list = visited.create_path(node.current,start)
+        if node.pos == end:
+            visited_list,path_list = visited.create_path(node.pos, start)
             return visited_list,path_list
         else:
             for child in node.children:
                 if child["node"] not in visited.visited_nodes and child["node"] not in priority_queue.queue_list and child["accessibility"]:
-                    priority_queue.push(Node(grid, child["node"], parent=node.current, neighbors="8_wind", cost=child["cost"],
+                    priority_queue.push(Node(grid, child["node"], parent=node.pos, neighbors="8_wind", cost=child["cost"],
                                              heuristic=diagonal_distance(child["node"], end)))
+    return [None],[None]
+
 
 def dfs(grid:np.array, start:tuple, end:tuple, _stack: Stack = Stack()) -> Tuple[list, list]:
     """ A function that searches for a path in a grid using the Depth-first-search algorithm
@@ -93,16 +95,16 @@ def dfs(grid:np.array, start:tuple, end:tuple, _stack: Stack = Stack()) -> Tuple
     _stack.push(Node(grid, start))
     visited = VisitedNodes()
 
-    while len(_stack.nodes) > 0:
+    while len(_stack) > 0:
             node = _stack.pop()
             visited._store_node(node)
-            if node.current == end:
-                visited_list,path_list = visited.create_path(node.current,start)
+            if node.pos == end:
+                visited_list,path_list = visited.create_path(node.pos, start)
                 return visited_list,path_list
             else:
                 for child in node.children:
-                    if child["node"] not in visited.visited_nodes and child["node"] not in _stack.nodes and child["accessibility"]:
-                            _stack.push(Node(grid, child["node"], parent=node.current))
+                    if child["node"] not in visited.visited_nodes and child["node"] not in _stack.stacked_nodes and child["accessibility"]:
+                            _stack.push(Node(grid, child["node"], parent=node.pos))
     return [None],[None]
 
 def bfs(grid:np.array,start:tuple,end:tuple) -> Tuple[list,list]:
@@ -129,38 +131,57 @@ def bfs(grid:np.array,start:tuple,end:tuple) -> Tuple[list,list]:
                 A list of visited nodes and a list of nodes that are included in the path
     """
 
+    if grid[start[0]][start[1]] == 1 or grid[end[0]][end[1]] == 1:
+        return [None],[None]
+
     queue = Queue()
     queue.push(Node(grid,start))
     visited= VisitedNodes()
 
-    while queue:
+    while len(queue) > 0:
         node = queue.pop()
         visited._store_node(node)
-        if node.current == end:
-            visited_list, path_list = visited.create_path(node.current,start)
+        if node.pos == end:
+            visited_list, path_list = visited.create_path(node.pos, start)
             return visited_list, path_list
         else:
             for child in node.children:
                 if child["node"] not in visited.visited_nodes and child["node"] not in queue.queue_list and child["accessibility"]:
-                    queue.push(Node(grid, child["node"], parent=node.current))
+                    queue.push(Node(grid, child["node"], parent=node.pos))
+    return [None],[None]
+
 
 if __name__ == "__main__":
     grid = np.genfromtxt("data_np.txt", delimiter=",", dtype=np.int)
-    # maze = Maze([0,0])
-    # print(maze)
-    # print(grid)
-    visited_list,path_list = dfs(grid,(3,4),(2,3))
+    print(grid)
+    # # print(grid)
+    visited_list,path_list = bfs(grid,(4,0),(0,4))
     print(visited_list)
     print(path_list)
+
+
+
+    test_nodes = [Node(grid, (4, 0), cost=0, heuristic=12),
+                       Node(grid, (3, 0), cost=10, heuristic=10),
+                       Node(grid, (4, 1), cost=10, heuristic=8)]
+
+    test_queue = Queue()
+
+
+    for node in test_nodes:
+        test_queue.push(node)
+
+    print(len(test_queue))
+    # #
+    # # for node in test_queue:
+    # #     print(node)
+
+    import sys
+    from os.path import dirname
+
+    # print(sys.executable)
+    # print("\n".join(sys.path))
     #
-    # test_nodes = [Node(grid, (4, 0), cost=0, heuristic=12),
-    #                    Node(grid, (3, 0), cost=10, heuristic=10),
-    #                    Node(grid, (4, 1), cost=10, heuristic=8)]
-    #
-    # test_queue = Queue()
-    #
-    # for node in test_nodes:
-    #     test_queue.push(node)
-    #
-    # for node in test_queue:
-    #     print(node)
+    # sys.path.append(dirname(__file__))
+
+    # print("test")
