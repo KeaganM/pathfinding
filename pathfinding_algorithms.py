@@ -44,11 +44,14 @@ def a_star(grid:np.array,start:tuple,end:tuple) -> Tuple[list,list]:
 
         return 10 * (dx+dy) + (14 - 2 * 10) * min(dx,dy)
 
+    if grid[start[0]][start[1]] == 1 or grid[end[0]][end[1]] == 1:
+        return [None],[None]
+
     visited = VisitedNodes()
     priority_queue = PriorityQueue()
     priority_queue.push(Node(grid, start, neighbors="8_wind", cost=0, heuristic=diagonal_distance(start, end)))
 
-    while priority_queue:
+    while len(priority_queue) > 0:
         node = priority_queue.pop()
         visited._store_node(node)
         if node.pos == end:

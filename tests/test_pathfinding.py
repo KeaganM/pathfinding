@@ -46,12 +46,13 @@ class PathfindingTests(unittest.TestCase):
         self.priority_queue = PriorityQueue()
         self.stack = Stack()
         self.queue = Queue()
-
+        self.visited = VisitedNodes()
 
     def tearDown(self):
         self.priority_queue = PriorityQueue()
         self.stack = Stack()
         self.queue = Queue()
+        self.visited = VisitedNodes()
 
 
     ###############
@@ -61,7 +62,7 @@ class PathfindingTests(unittest.TestCase):
     #### Algorithm Testing ####
 
     # settings decorator with verbosity to show inputs and errors in terminal
-    @settings(verbosity=Verbosity.verbose)
+    #@settings(verbosity=Verbosity.verbose)
     # given decorater to set up the inputs, we use hypo array (imported above) to create a mock numpy array for the grid
     # st.tuples(st.integer(),st.integer()) is creating a tuple with two integers set between 0 to 4
     @given(hypo_array(dtype=np.int,shape=(5,5),elements=st.integers(0,1)),
@@ -74,6 +75,13 @@ class PathfindingTests(unittest.TestCase):
         assert visited_list
         assert path_list
 
+    def test_dfs_assert_equal_return_lists(self):
+        visited_list, path_list = dfs(self.grid, self.start, self.end, _stack=Stack())
+        self.assertEqual(visited_list,self.dfs_correct_returns["visited_list"],
+                         "tested visited_list is not equal to correct visited list")
+        self.assertEqual(path_list,self.dfs_correct_returns["path_list"],
+                         "tested path_list is not equal to correct path list")
+
     @given(hypo_array(dtype=np.int, shape=(5, 5), elements=st.integers(0, 1)),
            st.tuples(st.integers(0, 4), st.integers(0, 4)),
            st.tuples(st.integers(0, 4), st.integers(0, 4)))
@@ -82,19 +90,20 @@ class PathfindingTests(unittest.TestCase):
         assert visited_list
         assert path_list
 
-    def test_dfs_assert_equal_return_lists(self):
-        visited_list, path_list = dfs(self.grid, self.start, self.end, _stack=Stack())
-        self.assertEqual(visited_list,self.dfs_correct_returns["visited_list"],
-                         "tested visited_list is not equal to correct visited list")
-        self.assertEqual(path_list,self.dfs_correct_returns["path_list"],
-                         "tested path_list is not equal to correct path list")
-
     def test_bfs_assert_equal_return_lists(self):
         visited_list, path_list = bfs(self.grid, self.start, self.end)
         self.assertEqual(visited_list, self.bfs_correct_returns["visited_list"],
                          "tested visited_list is not equal to correct visited list")
         self.assertEqual(path_list, self.bfs_correct_returns["path_list"],
                          "tested path_list is not equal to correct path list")
+
+    @given(hypo_array(dtype=np.int, shape=(5, 5), elements=st.integers(0, 1)),
+           st.tuples(st.integers(0, 4), st.integers(0, 4)),
+           st.tuples(st.integers(0, 4), st.integers(0, 4)))
+    def test_a_star_assert_return_lists(self, grid, start, end):
+        visited_list, path_list = a_star(grid, start, end)
+        assert visited_list
+        assert path_list
 
     def test_a_star_assert_equal_return_lists(self):
         visited_list, path_list = a_star(self.grid, self.start, self.end)
@@ -108,16 +117,20 @@ class PathfindingTests(unittest.TestCase):
     def test_stack_push_assert_in(self):
         self.stack.push(self.test_nodes[0])
         self.assertIn(self.test_nodes[0], self.stack.stacked_nodes, "Was not able to push node into stack")
-        pass
 
     def test_stack_pop_assert_sequence_equal(self):
-        pass
+        for test_node in self.test_nodes:
+            self.stack.push(test_node)
+        self.assertEqual(self.stack.pop(),self.test_nodes.pop(-1),"Popped value incorrect.")
 
     def test_queue_push_assert_in(self):
-        pass
+        self.queue.push(self.test_nodes[0])
+        self.assertIn(self.test_nodes[0],self.queue.queued_nodes,"Test node not in queue")
 
     def test_queue_pop_assert_sequence_equal(self):
-        pass
+        for test_node in self.test_nodes:
+            self.queue.push(test_node)
+        self.assertEqual(self.queue.pop(),self.test_nodes.pop(0),"Popped value incorrect")
 
     def test_priority_queue_push(self):
         self.priority_queue.push(self.test_nodes[0])
@@ -133,6 +146,9 @@ class PathfindingTests(unittest.TestCase):
             self.priority_queue.push(node)
         self.priority_queue.pop()
         self.assertSequenceEqual(self.priority_queue.queued_nodes, [self.test_nodes[1], self.test_nodes[2]], "pop failed with test nodes.")
+
+    def test_visited_nodes_store_node(self):
+        pass
 
     def test_visited_nodes_create_path(self):
         pass
