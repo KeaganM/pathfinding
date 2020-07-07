@@ -152,39 +152,3 @@ def bfs(grid:np.array,start:tuple,end:tuple) -> Tuple[list,list]:
                 if child["node"] not in visited.visited_nodes and child["node"] not in queue.queue_list and child["accessibility"]:
                     queue.push(Node(grid, child["node"], parent=node.pos))
     return [None],[None]
-
-
-if __name__ == "__main__":
-    grid = np.genfromtxt("data_np.txt", delimiter=",", dtype=np.int)
-    print(grid)
-    # # print(grid)
-    visited_list,path_list = bfs(grid,(4,0),(0,4))
-    print(visited_list)
-    print(path_list)
-
-
-
-    test_nodes = [Node(grid, (4, 0), cost=0, heuristic=12),
-                       Node(grid, (3, 0), cost=10, heuristic=10),
-                       Node(grid, (4, 1), cost=10, heuristic=8)]
-
-    test_queue = Queue()
-
-
-    for node in test_nodes:
-        test_queue.push(node)
-
-    print(len(test_queue))
-    # #
-    # # for node in test_queue:
-    # #     print(node)
-
-    import sys
-    from os.path import dirname
-
-    # print(sys.executable)
-    # print("\n".join(sys.path))
-    #
-    # sys.path.append(dirname(__file__))
-
-    # print("test")
